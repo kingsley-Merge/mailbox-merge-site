@@ -31,6 +31,15 @@ const paymentForm = document.getElementById("payment-form");
 const paymentNote = document.getElementById("payment-note");
 const invoiceType = document.getElementById("invoice-type");
 const paymentSubmit = document.getElementById("payment-submit");
+const successModal = document.getElementById("success-modal");
+const successClose = document.getElementById("success-close");
+const successCopy = document.getElementById("success-copy");
+const successBusiness = document.getElementById("success-business");
+const successTier = document.getElementById("success-tier");
+const successHouseholds = document.getElementById("success-households");
+const successAmount = document.getElementById("success-amount");
+const successInvoiceType = document.getElementById("success-invoice-type");
+const successEmail = document.getElementById("success-email");
 
 const revealNodes = document.querySelectorAll(".reveal");
 
@@ -44,6 +53,13 @@ function formatCurrency(value) {
 
 function formatCount(value) {
   return new Intl.NumberFormat("en-US").format(value);
+}
+
+function formatCurrencyFromCents(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format((value || 0) / 100);
 }
 
 function formatFileSize(bytes) {
@@ -284,6 +300,26 @@ if (invoiceType) {
 }
 
 const paymentStatus = new URLSearchParams(window.location.search).get("payment");
+const sessionId = new URLSearchParams(window.location.search).get("session_id");
+const previewSuccess = new URLSearchParams(window.location.search).get("preview_success");
+
+function closeSuccessModal() {
+  if (!successModal) {
+    return;
+  }
+
+  successModal.classList.remove("is-open");
+  successModal.setAttribute("aria-hidden", "true");
+}
+
+function openSuccessModal() {
+  if (!successModal) {
+    return;
+  }
+
+  successModal.classList.add("is-open");
+  successModal.setAttribute("aria-hidden", "false");
+}
 
 if (paymentStatus === "success" && paymentNote) {
   paymentNote.textContent =
@@ -291,6 +327,72 @@ if (paymentStatus === "success" && paymentNote) {
 } else if (paymentStatus === "cancelled" && paymentNote) {
   paymentNote.textContent =
     "Stripe checkout was cancelled. You can update the details and try again.";
+}
+
+if (successClose) {
+  successClose.addEventListener("click", closeSuccessModal);
+}
+
+if (successModal) {
+  successModal.addEventListener("click", (event) => {
+    if (event.target === successModal) {
+      closeSuccessModal();
+    }
+  });
+}
+
+function populateSuccessModal(payload) {
+  successCopy.textContent =
+    payload.paymentStatus === "paid"
+      ? "Your payment was confirmed. A receipt should be on the way to your email."
+      : "Your checkout was completed and the order details are below.";
+  successBusiness.textContent = payload.businessName;
+  successTier.textContent = payload.tierLabel;
+  successHouseholds.textContent = `${formatCount(Number(payload.households))} households`;
+  successAmount.textContent =
+    typeof payload.amountPaid === "number"
+      ? formatCurrencyFromCents(payload.amountPaid)
+      : payload.amountPaid;
+  successInvoiceType.textContent = payload.invoiceType;
+  successEmail.textContent = payload.customerEmail;
+  openSuccessModal();
+}
+
+if (previewSuccess === "1" && successModal) {
+  populateSuccessModal({
+    paymentStatus: "paid",
+    businessName: "Corner Cafe",
+    tierLabel: "Neighborhood Feature",
+    households: 5000,
+    amountPaid: 36900,
+    invoiceType: "Booking deposit",
+    customerEmail: "Kingsley@mailboxmerge.com",
+  });
+}
+
+if (paymentStatus === "success" && sessionId && successModal) {
+  successCopy.textContent = "Loading your payment details...";
+  openSuccessModal();
+
+  fetch(`/.netlify/functions/get-checkout-session?session_id=${encodeURIComponent(sessionId)}`)
+    .then(async (response) => {
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Unable to load order details.");
+      }
+
+      populateSuccessModal(payload);
+    })
+    .catch((error) => {
+      successCopy.textContent =
+        error.message || "Your payment went through, but the order details could not be loaded.";
+    });
+
+  const cleanUrl = new URL(window.location.href);
+  cleanUrl.searchParams.delete("payment");
+  cleanUrl.searchParams.delete("session_id");
+  window.history.replaceState({}, "", cleanUrl.toString());
 }
 
 if ("IntersectionObserver" in window) {

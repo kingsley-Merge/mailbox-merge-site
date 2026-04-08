@@ -775,6 +775,102 @@ input[type="range"] {
   color: var(--surface-ink);
 }
 
+.success-modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 19, 24, 0.42);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  z-index: 60;
+}
+
+.success-modal.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.success-modal-card {
+  width: min(760px, 100%);
+  padding: 28px;
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at top right, rgba(47, 107, 87, 0.18), transparent 24%),
+    linear-gradient(180deg, rgba(255, 251, 246, 0.98), rgba(248, 239, 228, 0.96));
+  border: 1px solid rgba(22, 33, 43, 0.08);
+  box-shadow: var(--shadow);
+}
+
+.success-close {
+  display: inline-flex;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.success-kicker {
+  margin: 10px 0 0;
+  color: var(--mint);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.success-modal-card h2 {
+  margin: 10px 0 12px;
+  font-family: "Syne", sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.success-copy {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.success-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.success-grid article {
+  padding: 18px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.64);
+  border: 1px solid rgba(22, 33, 43, 0.08);
+}
+
+.success-grid span,
+.success-grid strong {
+  display: block;
+}
+
+.success-grid span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.success-grid strong {
+  margin-top: 6px;
+  color: var(--surface-ink);
+  font-family: "Syne", sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: -0.03em;
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(26px);
@@ -825,6 +921,10 @@ input[type="range"] {
 
   .footer-bottom p:last-child {
     text-align: left;
+  }
+
+  .success-grid {
+    grid-template-columns: 1fr;
   }
 }
 
