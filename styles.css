@@ -135,6 +135,39 @@ section[id] {
   align-items: center;
 }
 
+.policy-main {
+  padding-top: 32px;
+}
+
+.policy-hero h1 {
+  margin: 0;
+  font-family: "Syne", sans-serif;
+  font-size: clamp(2.7rem, 6vw, 5rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  max-width: 12ch;
+}
+
+.policy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.policy-card h2 {
+  margin: 0 0 12px;
+  font-family: "Syne", sans-serif;
+  font-size: 1.7rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.policy-band a {
+  color: var(--accent-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .hero-copy h1,
 .section-heading h2,
 .hero-visual h3,
@@ -175,6 +208,7 @@ section[id] {
 .panel p,
 .panel li,
 .form-note,
+.payment-legal,
 .estimate-note,
 .sources a,
 .footer p,
@@ -224,6 +258,17 @@ section[id] {
   background: rgba(255, 255, 255, 0.6);
   color: var(--surface-ink);
   border: 1px solid rgba(22, 33, 43, 0.1);
+}
+
+.payment-legal {
+  margin: -4px 0 0;
+  font-size: 0.94rem;
+}
+
+.payment-legal a {
+  color: var(--accent-dark);
+  font-weight: 700;
+  text-decoration: none;
 }
 
 .hero-points,
@@ -888,6 +933,7 @@ input[type="range"] {
   .submit-layout,
   .payment-layout,
   .proof-band,
+  .policy-grid,
   .steps-grid,
   .pricing-grid,
   .stats-grid,
