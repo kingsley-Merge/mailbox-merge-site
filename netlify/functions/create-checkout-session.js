@@ -110,7 +110,7 @@ exports.handler = async function handler(event) {
       mode: "payment",
       customer_email: payerEmail,
       billing_address_collection: "auto",
-      success_url: `${origin}/?payment=success`,
+      success_url: `${origin}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/?payment=cancelled`,
       metadata: {
         billing_contact: payerName,
