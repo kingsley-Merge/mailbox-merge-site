@@ -1,0 +1,9 @@
+{
+  "name": "mailbox-merge-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static Mailbox Merge site with Netlify + Stripe Checkout integration",
+  "dependencies": {
+    "stripe": "^18.4.0"
+  }
+}
