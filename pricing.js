@@ -43,28 +43,21 @@
     }
 
     const households = Number(input.households);
-    const cadence = input.cadence;
     const needsDesign = Boolean(input.needsDesign);
-
-    const cadenceMultiplier =
-      cadence === "monthly" ? 0.95 : cadence === "seasonal" ? 0.98 : 1;
     const designFee = needsDesign ? 85 : 0;
-    const agencyFee = Math.round((tier.agencyFee + designFee) * cadenceMultiplier);
+    const agencyFee = tier.agencyFee + designFee;
     const postage = households * USPS_POSTAGE_RATE * tier.share;
     const print = households * PRINT_AND_PREP_RATE * tier.share;
     const total = agencyFee + postage + print;
-    const deposit = total * 0.4;
 
     return {
       tier,
       households,
       needsDesign,
-      cadence,
       agencyFee,
       postage,
       print,
       total,
-      deposit,
     };
   }
 

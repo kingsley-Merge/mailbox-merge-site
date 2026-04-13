@@ -6,7 +6,6 @@ const tierInput = document.getElementById("ad-tier");
 const householdsInput = document.getElementById("household-count");
 const householdReadout = document.getElementById("household-readout");
 const designSupportInput = document.getElementById("design-support");
-const cadenceInput = document.getElementById("campaign-cadence");
 
 const estimateTierName = document.getElementById("estimate-tier-name");
 const estimateSpace = document.getElementById("estimate-space");
@@ -14,22 +13,19 @@ const estimateReach = document.getElementById("estimate-reach");
 const estimateFee = document.getElementById("estimate-fee");
 const estimatePostage = document.getElementById("estimate-postage");
 const estimatePrint = document.getElementById("estimate-print");
-const estimateDeposit = document.getElementById("estimate-deposit");
+const estimatePayment = document.getElementById("estimate-payment");
 const estimateTotal = document.getElementById("estimate-total");
 
 const formTier = document.getElementById("form-tier");
 const paymentTierName = document.getElementById("payment-tier-name");
 const paymentTotal = document.getElementById("payment-total");
-const paymentDeposit = document.getElementById("payment-deposit");
 
 const campaignForm = document.getElementById("campaign-form");
 const campaignNote = document.getElementById("campaign-note");
 const mediaUpload = document.getElementById("media-upload");
-const uploadPreview = document.getElementById("upload-preview");
 
 const paymentForm = document.getElementById("payment-form");
 const paymentNote = document.getElementById("payment-note");
-const invoiceType = document.getElementById("invoice-type");
 const paymentSubmit = document.getElementById("payment-submit");
 const successModal = document.getElementById("success-modal");
 const successClose = document.getElementById("success-close");
@@ -42,6 +38,29 @@ const successInvoiceType = document.getElementById("success-invoice-type");
 const successEmail = document.getElementById("success-email");
 
 const revealNodes = document.querySelectorAll(".reveal");
+
+const navigationEntry = performance.getEntriesByType("navigation")[0];
+const isReload =
+  navigationEntry?.type === "reload" ||
+  (performance.navigation && performance.navigation.type === 1);
+
+if ("scrollRestoration" in history) {
+  history.scrollRestoration = "manual";
+}
+
+if (isReload) {
+  if (window.location.hash) {
+    history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+  }
+
+  window.addEventListener(
+    "load",
+    () => {
+      window.scrollTo(0, 0);
+    },
+    { once: true }
+  );
+}
 
 function formatCurrency(value) {
   return new Intl.NumberFormat("en-US", {
@@ -62,30 +81,11 @@ function formatCurrencyFromCents(value) {
   }).format((value || 0) / 100);
 }
 
-function formatFileSize(bytes) {
-  if (!Number.isFinite(bytes) || bytes <= 0) {
-    return "Unknown size";
-  }
-
-  const units = ["B", "KB", "MB", "GB"];
-  let size = bytes;
-  let unitIndex = 0;
-
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024;
-    unitIndex += 1;
-  }
-
-  const digits = unitIndex === 0 ? 0 : 1;
-  return `${size.toFixed(digits)} ${units[unitIndex]}`;
-}
-
 function getEstimate() {
   return calculateEstimate({
     tierKey: tierInput.value,
     households: Number(householdsInput.value),
     needsDesign: designSupportInput.value === "yes",
-    cadence: cadenceInput.value,
   });
 }
 
@@ -103,79 +103,14 @@ function syncEstimate() {
   estimateFee.textContent = formatCurrency(estimate.agencyFee);
   estimatePostage.textContent = formatCurrency(estimate.postage);
   estimatePrint.textContent = formatCurrency(estimate.print);
-  estimateDeposit.textContent = formatCurrency(estimate.deposit);
+  estimatePayment.textContent = formatCurrency(estimate.total);
   estimateTotal.textContent = formatCurrency(estimate.total);
   paymentTierName.textContent = estimate.tier.label;
   paymentTotal.textContent = formatCurrency(estimate.total);
-  paymentDeposit.textContent = formatCurrency(estimate.deposit);
 
   if (formTier) {
     formTier.value = tierInput.value;
   }
-}
-
-function createUploadCard(file) {
-  const item = document.createElement("article");
-  item.className = "upload-item";
-
-  const isImage = file.type.startsWith("image/");
-
-  if (isImage) {
-    const thumb = document.createElement("div");
-    thumb.className = "upload-thumb";
-
-    const image = document.createElement("img");
-    image.alt = file.name;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      image.src = event.target?.result || "";
-    };
-    reader.readAsDataURL(file);
-
-    thumb.appendChild(image);
-    item.appendChild(thumb);
-  } else {
-    const fileType = document.createElement("div");
-    fileType.className = "upload-filetype";
-    fileType.textContent = file.name.split(".").pop()?.toUpperCase() || "FILE";
-    item.appendChild(fileType);
-  }
-
-  const meta = document.createElement("div");
-  meta.className = "upload-meta";
-
-  const title = document.createElement("strong");
-  title.textContent = file.name;
-
-  const size = document.createElement("span");
-  size.textContent = formatFileSize(file.size);
-
-  meta.append(title, size);
-  item.appendChild(meta);
-
-  return item;
-}
-
-function renderUploads(files) {
-  if (!uploadPreview) {
-    return;
-  }
-
-  uploadPreview.innerHTML = "";
-
-  if (!files.length) {
-    const placeholder = document.createElement("div");
-    placeholder.className = "upload-placeholder";
-    placeholder.textContent =
-      "Add logos, artwork, or PDFs and they will appear here before submission.";
-    uploadPreview.appendChild(placeholder);
-    return;
-  }
-
-  files.forEach((file) => {
-    uploadPreview.appendChild(createUploadCard(file));
-  });
 }
 
 function buildCampaignMailto(data, estimate) {
@@ -193,7 +128,7 @@ function buildCampaignMailto(data, estimate) {
       `Tier: ${tierConfig[data.get("selectedTier")]?.label || estimate.tier.label}`,
       `Target area: ${data.get("targetArea") || "Not provided"}`,
       `Estimated total: ${formatCurrency(estimate.total)}`,
-      `Booking deposit: ${formatCurrency(estimate.deposit)}`,
+      `Payment required: ${formatCurrency(estimate.total)}`,
       `Artwork uploaded locally: ${(mediaUpload?.files?.length || 0) > 0 ? "Yes" : "No"}`,
       "",
       "Campaign details:",
@@ -214,13 +149,6 @@ if (formTier && tierInput) {
     tierInput.value = formTier.value;
     syncEstimate();
   });
-}
-
-if (mediaUpload) {
-  mediaUpload.addEventListener("change", () => {
-    renderUploads(Array.from(mediaUpload.files || []));
-  });
-  renderUploads([]);
 }
 
 if (campaignForm && campaignNote) {
@@ -262,12 +190,9 @@ if (paymentForm && paymentNote) {
           payerEmail: data.get("payerEmail"),
           payerBusiness: data.get("payerBusiness"),
           paymentNotes: data.get("paymentNotes"),
-          invoiceType: data.get("invoiceType"),
           tierKey: tierInput.value,
           households: Number(householdsInput.value),
-          cadence: cadenceInput.value,
           designSupport: designSupportInput.value,
-          estimateTotal: estimate.total,
         }),
       });
 
@@ -287,15 +212,6 @@ if (paymentForm && paymentNote) {
         paymentSubmit.textContent = submitButtonLabel || "Continue to Secure Payment";
       }
     }
-  });
-}
-
-if (invoiceType) {
-  invoiceType.addEventListener("change", () => {
-    const estimate = getEstimate();
-    const amount =
-      invoiceType.value === "deposit" ? estimate.deposit : estimate.total;
-    paymentNote.textContent = `Current Stripe checkout amount: ${formatCurrency(amount)}.`;
   });
 }
 
@@ -364,8 +280,8 @@ if (previewSuccess === "1" && successModal) {
     businessName: "Corner Cafe",
     tierLabel: "Neighborhood Feature",
     households: 5000,
-    amountPaid: 36900,
-    invoiceType: "Booking deposit",
+    amountPaid: 92125,
+    invoiceType: "Campaign payment",
     customerEmail: "Kingsley@mailboxmerge.com",
   });
 }

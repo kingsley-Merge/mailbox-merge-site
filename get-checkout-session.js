@@ -34,10 +34,7 @@ exports.handler = async function handler(event) {
       businessName: session.metadata?.business_name || "Mailbox Merge Client",
       tierLabel: session.metadata?.tier_label || "Campaign",
       households: session.metadata?.households || "Not provided",
-      invoiceType:
-        session.metadata?.invoice_type === "deposit"
-          ? "Booking deposit"
-          : "Full campaign balance",
+      invoiceType: "Campaign payment",
       customerEmail: session.customer_details?.email || session.customer_email || "Not provided",
       amountPaid: session.amount_total || 0,
       paymentStatus: session.payment_status || "unknown",

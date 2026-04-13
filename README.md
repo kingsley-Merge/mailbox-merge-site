@@ -1,65 +1,46 @@
-# Mailbox Merge Media
+# Mailbox Merge
 
-Static marketing site for a postcard ad agency that sells shared ad space on a
-single mailer and supports inquiries, media upload previews, pricing tiers, and
-Stripe Checkout payments.
+Separate client-facing Mailbox Merge website built from the earlier project as a
+new multi-page version for launch.
 
-## Files
+## Pages
 
-- `index.html`: page content, tier cards, estimator, USPS stats, inquiry form, and payment section
-- `styles.css`: full visual design, layout, responsive behavior, and reveal animations
-- `pricing.js`: shared pricing logic used by the browser and the Stripe function
-- `script.js`: pricing calculator, upload preview cards, inquiry email generation, and Stripe checkout redirect
-- `netlify/functions/create-checkout-session.js`: serverless Stripe Checkout session creator
+- `index.html`: main sales page with estimator, inquiry form, Stripe-ready payment flow, and order confirmation popup
+- `mockups.html`: polished fictional postcard examples
+- `faq.html`: customer-facing answers for pricing, timing, artwork, and service area
+- `policies.html`: payment, refund, artwork, and timing policies
 
-## Before you launch
+## Core files
 
-- Replace `Mailbox Merge Media` with your real brand name in `index.html`
-- Replace the inquiry inbox in `script.js` if you want a different destination:
+- `styles.css`: shared layout and page styling across all pages
+- `pricing.js`: quote logic used by the estimator and Stripe function
+- `script.js`: inquiry flow, upload preview, estimator syncing, Stripe checkout redirect, and payment success popup
+- `netlify/functions/create-checkout-session.js`: creates Stripe Checkout sessions
+- `netlify/functions/get-checkout-session.js`: loads order details for the thank-you popup
+
+## Launch reminders
+
+- Keep `STRIPE_SECRET_KEY` in Netlify environment variables only
+- Upload the updated HTML, CSS, JS, and `netlify/functions` files to GitHub before deploy
+- Test inquiry draft flow, Stripe test payment, and thank-you popup on the deployed site
+- Current contact details on the site:
   - `Kingsley@mailboxmerge.com`
-- Review the sample agency fees and production assumptions in `script.js`
-- Update any copy that should match your real service area, print partners, and offer details
+  - `(619) 991-3555`
+  - `San Luis Obispo, CA`
 
-## Stripe setup
+## Policy assumptions used in this version
 
-1. Create a Stripe account and open the Developers area
-2. Copy your Stripe secret key
-3. In Netlify, add an environment variable named `STRIPE_SECRET_KEY`
-4. Deploy the site so Netlify picks up the function and the key
+- Deposits become non-refundable once design or route planning begins
+- Full payment is required before print
+- No refunds after print approval
+- Ads should be submitted within one week when possible
+- Print is generally prepared within two weeks, but timing remains estimated
+- Custom ad creation is `$85` with revisions until print approval
 
-The payment form sends customers to Stripe Checkout through the Netlify
-function at `/.netlify/functions/create-checkout-session`.
+## Current household options
 
-For local or team reference, `.env.example` shows the required variable name:
-
-- `STRIPE_SECRET_KEY`
-
-## USPS references used in the site
-
-- `USPS Every Door Direct Mail`
-- `USPS Postal Facts: Every Door Direct Mail`
-- `USPS Delivers ROI Calculator`
-- `USPS Delivers Direct Mail Report`
-- `USPS Delivers Informed Delivery Calculator`
-
-The page currently uses:
-
-- USPS EDDM Retail postage estimate: `$0.247` per piece
-- Demo print and prep estimate: `$0.094` per piece
-
-## Preview locally
-
-- Open `index.html` directly in a browser, or
-- Run `python3 -m http.server 8000` in this folder and visit `http://localhost:8000`
-
-## Netlify deploy notes
-
-- Netlify should publish the site root `.`
-- Netlify Functions should use `netlify/functions`
-- Install dependencies before deploy or let Netlify install from `package.json`
-
-## Notes
-
-- The upload area previews files locally in the browser; it does not store them on a server
-- Inquiry actions still open an email draft
-- Payment actions now use Stripe Checkout through a Netlify Function
+- `1,000`
+- `2,500`
+- `5,000`
+- `7,500`
+- `10,000`
